@@ -49,7 +49,7 @@ class _RatingPageState extends State<RatingPage> {
         padding: EdgeInsets.all(5.sp),
         child: Column(
           children: [
-            Image.asset(Resources.header),
+            // Image.asset(Resources.header),
             Expanded(
               child: ListView.builder(
                 itemCount: widget.menuItemId.length,
@@ -62,7 +62,7 @@ class _RatingPageState extends State<RatingPage> {
             CustomButton(title: "Skip",
                 btnColor: AppColors.kBlackColor,
                 onClick: (){
-              UI.pushWithRemove(AppRoutes.orderCompletedWidget);
+                  UI.pushWithRemove(AppRoutes.customerStartPage);
             })
           ],
         ),
