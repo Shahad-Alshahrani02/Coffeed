@@ -31,13 +31,7 @@ class _CoffeeRegisterPageState extends State<CoffeeRegisterPage> {
   UserViewModel viewModel = UserViewModel();
   bool isHidden = true;
 
-  @override
-  void initState() {
-    if(widget.user != null){
-      viewModel.fillSalonData(widget.user!);
-    }
-    super.initState();
-  }
+
   @override
   Widget build(BuildContext context) {
     return widget.user != null ?
@@ -162,11 +156,7 @@ class _CoffeeRegisterPageState extends State<CoffeeRegisterPage> {
                                   title: widget.user != null ? "Update": "Register",
                                   btnColor: AppColors.kBlackColor,
                                   onClick: (){
-                                    if (widget.user != null){
-                                      viewModel.salonUpdateProfile(widget.user!.id!);
-                                    }else{
-                                      viewModel.salonRegister();
-                                    }
+                                    
                                   }
                               );
                             }
@@ -306,11 +296,7 @@ class _CoffeeRegisterPageState extends State<CoffeeRegisterPage> {
                               title: widget.user != null ? "Update": "Register",
                               btnColor: AppColors.kBlackColor,
                               onClick: (){
-                                if (widget.user != null){
-                                  viewModel.salonUpdateProfile(widget.user!.id!);
-                                }else{
-                                  viewModel.salonRegister();
-                                }
+                              
                               }
                           );
                         }

@@ -42,7 +42,6 @@ class User {
     };
   }
 
-  // Convert a Admin object to a Map
   Map<String, dynamic> toMapAdmin() {
     return {
       'id': id,
@@ -55,21 +54,7 @@ class User {
     };
   }
 
-  // Convert a Salon object to a Map
-  Map<String, dynamic> toMapSalon() {
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'address': address,
-      'password': password,
-      'profile_image': profile_image,
-      'type': type,
-    };
-  }
 
-  // Create a Customer object from a Map
   factory User.fromJson(Map<String, dynamic> map) {
     return User(
       id: map['id'],

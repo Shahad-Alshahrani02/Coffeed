@@ -222,17 +222,14 @@ class UserViewModel{
         userResult.password = newPassword.text;
         if(userResult.type == 1) {
           await firebaseHelper.updateDocument(CollectionNames.usersTable,
-              PrefManager.currentUser!.id!, userResult.toMapAdmin());
           loading.onUpdateData(false);
         }
         if(userResult.type == 2) {
           await firebaseHelper.updateDocument(CollectionNames.usersTable,
-              PrefManager.currentUser!.id!, userResult.toMap());
           loading.onUpdateData(false);
         }
         if(userResult.type == 3) {
           await firebaseHelper.updateDocument(CollectionNames.usersTable,
-              PrefManager.currentUser!.id!, userResult.toMapSalon());
           loading.onUpdateData(false);
         }
         UI.showMessage("Password updated successfully");
@@ -278,77 +275,6 @@ class UserViewModel{
     profile_image.onUpdateData(await getImageFileByUrl(u.profile_image ?? ""));
   }
 
-  adminUpdateProfile(String userId) async{
-    if (!formKey.currentState!.validate()){
-      return;
-    }
-    try{
-      User user = User();
-      user.id = userId;
-      user.name = name.text;
-      user.email = email.text;
-      user.password = password.text;
-      user.address = address.text;
-      user.phone = phone.text;
-      user.type = 1;
-      print("user.get() >>>>  ${user.toMapAdmin()}");
-
-      loading.onUpdateData(true);
-      bool emailUnique = await isEmailUnique(email.text);
-      if (!emailUnique) {
-        await firebaseHelper.updateDocument(CollectionNames.usersTable, userId, user.toMapAdmin());
-        await getUserById();
-        UI.pushWithRemove(AppRoutes.adminStartPage);
-        UI.showMessage("Profile updated Successfully");
-      }
-      loading.onUpdateData(false);
-    } on Failure catch (e) {
-      loading.onErrorState(e);
-    }
-  }
-
-  salonUpdateProfile(String userId) async{
-    if (!formKey.currentState!.validate()){
-      return;
-    }
-    if(profile_image.state.data == null){
-      UI.showMessage("Upload Profile image");
-      return;
-    }
-
-    userCubit.onLoadingState();
-    try{
-      loading.onUpdateData(true);
-
-      String urlProfileImage = await firebaseHelper.updateImage(
-          profile_image.state.data ?? File(""),
-        profile_image_url
-      );
-
-      User user = User();
-      user.id = userId;
-      user.name = name.text;
-      user.email = email.text;
-      user.password = password.text;
-      user.address = address.text;
-      user.phone = phone.text;
-      user.profile_image = urlProfileImage;
-      user.type = 3;
-      print("user.get() >>>>  ${user.toMapSalon()}");
-
-      loading.onUpdateData(true);
-      bool emailUnique = await isEmailUnique(email.text);
-      if (!emailUnique) {
-        await firebaseHelper.updateDocument(CollectionNames.usersTable, userId, user.toMapSalon());
-        await getUserById();
-        UI.pushWithRemove(AppRoutes.coffeeStartPage);
-        UI.showMessage("Profile updated Successfully");
-      }
-      loading.onUpdateData(false);
-    } on Failure catch (e) {
-      loading.onErrorState(e);
-    }
-  }
 
   customerUpdateProfile(String userId) async{
     if (!formKey.currentState!.validate()){

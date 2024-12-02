@@ -36,7 +36,6 @@ class UserModel {
     };
   }
 
-  // Convert a Customer object to a Map
   Map<String, dynamic> toMapLogin() {
     return {
       'email': email,
@@ -44,34 +43,8 @@ class UserModel {
     };
   }
 
-  // Convert a Admin object to a Map
-  Map<String, dynamic> toMapAdmin() {
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'address': address,
-      'phone': phone,
-      'password': password,
-      'type': type,
-    };
-  }
 
-  // Convert a Salon object to a Map
-  Map<String, dynamic> toMapSalon() {
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'address': address,
-      'password': password,
-      'profile_image': profile_image,
-      'type': type,
-    };
-  }
 
-  // Convert toJson
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -85,7 +58,6 @@ class UserModel {
     };
   }
 
-  // Create a Customer object from a Map
   factory UserModel.fromJson(Map<String, dynamic> map) {
     return UserModel(
       id: map['id'],
