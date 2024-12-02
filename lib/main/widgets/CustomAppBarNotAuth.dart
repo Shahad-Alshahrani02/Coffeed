@@ -23,29 +23,9 @@ AppBar customAppBarWithoutBack(BuildContext context, {String? title}) {
     title: Text(
         title ?? 'Welcome To Coffee',
       style: AppStyles.kTextStyleHeader22.copyWith(
-        // color: AppColors.kWhiteColor,
         fontWeight: FontWeight.bold
       ),
     ),
   );
 }
 
-/*
-Container customAppBarWithoutBack(BuildContext context, {String? title}) {
-  return Container(
-    color: AppColors.kMainColor,
-    child: Row(
-      children: [
-        Icon(Icons.keyboard_backspace, size: 25.sp,),
-        Text(
-          title ?? 'Welcome To Bling Salon',
-          style: AppStyles.kTextStyle22.copyWith(
-              color: AppColors.kWhiteColor,
-              fontWeight: FontWeight.bold
-          ),
-        ),
-      ],
-    ),
-  );
-}
-*/

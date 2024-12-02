@@ -189,60 +189,7 @@ class UserViewModel{
     }
   }
 
-  salonRegister() async{
-    if (!formKey.currentState!.validate()){
-      return;
-    }
-    if(profile_image.state.data == null){
-      UI.showMessage("Upload Profile image");
-      return;
-    }
 
-    userCubit.onLoadingState();
-    try{
-      String userId = Uuid().v4(); // Generate a unique ID for the user
-      loading.onUpdateData(true);
-      String urlProfileImage = await firebaseHelper.uploadImage(
-          profile_image.state.data ?? File(""));
-
-      User user = User();
-      user.id = userId;
-      user.name = name.text;
-      user.email = email.text;
-      user.password = password.text;
-      user.address = address.text;
-      user.phone = phone.text;
-      user.profile_image = urlProfileImage;
-      user.type = 3;
-      print("user.get() >>>>  ${user.toMapSalon()}");
-
-      bool emailUnique = await isEmailUnique(email.text);
-      if (!emailUnique) {
-        UI.showMessage('Email already exists. Please use a different email.');
-        loading.onUpdateData(false);
-        return;
-      }
-
-      QuerySnapshot? querySnapshot = await firebaseHelper.addDocumentWithSpacificDocID(CollectionNames.usersTable, userId, user.toMapSalon());
-
-      List<QueryDocumentSnapshot> result = await firebaseHelper.searchDocuments(CollectionNames.usersTable, "email", email.text);
-      if(result.isNotEmpty){
-        var userData = result.first.data() as Map<String, dynamic>;
-        PrefManager.setCurrentUser(UserModel.fromJson(userData));
-        UI.showMessage('register success');
-        UI.pushWithRemove(AppRoutes.coffeeStartPage);
-      } else{
-        UI.showMessage('register failed');
-      }
-
-      loading.onUpdateData(false);
-
-      print("documentReference.get() >>>> ");
-      print(querySnapshot?.docs.asMap());
-    } on Failure catch (e) {
-      userCubit.onErrorState(e);
-    }
-  }
 
   Future getUserById() async{
     try{
@@ -319,16 +266,6 @@ class UserViewModel{
     phone.text = u.phone ?? "";
   }
 
-  fillSalonData(User u) async{
-    print(u.toMapSalon());
-    name.text = u.name ?? "";
-    email.text = u.email ?? "";
-    address.text = u.address ?? "";
-    phone.text = u.phone ?? "";
-    password.text = u.password ?? "";
-    profile_image_url = u.profile_image ?? "";
-    profile_image.onUpdateData(await getImageFileByUrl(u.profile_image ?? ""));
-  }
 
   fillCustomerData(User u) async{
     print(u.toMap());
