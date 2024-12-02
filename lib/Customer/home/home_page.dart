@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:template/features/Customer/cart/widgets/CartIconWidget.dart';
 import 'package:template/features/Customer/home/widgets/menu_page.dart';
@@ -44,12 +45,21 @@ class _HomePageState extends State<HomePage> {
   HomeViewModel homeViewModel = HomeViewModel();
   AdminHomeViewModel adminHomeViewModel = AdminHomeViewModel();
   CoffeeViewModel coffeeViewModel = CoffeeViewModel();
-  int _index = 0;
+  // int _index = 0;
 
   final random =  Random();
 
+  getlocationData() async{
+    // get current location
+    LocationPermission permission;
+    permission = await Geolocator.requestPermission();
+    print(permission);
+    Position position = await Geolocator.getCurrentPosition();
+  }
+
   @override
   void initState() {
+    getlocationData();
     advertismentViewModel.getAllAdvertisements();
     adminHomeViewModel.getAllCategories();
     homeViewModel.getAllCoffeeShops();
@@ -61,21 +71,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Padding(
-          padding: EdgeInsets.all(10.sp),
-          child: Image.asset(Resources.notify),
-        ),
+        // leading: Padding(
+        //   padding: EdgeInsets.all(10.sp),
+        //   child: Image.asset(Resources.notify),
+        // ),
         title: CustomField(
             controller: homeViewModel.search,
             fillColor: AppColors.kSearchColor,
+            onChange: (input) {
+              print(input);
+              homeViewModel.serchOnCoffees(input ?? "");
+              adminHomeViewModel.serchOnCategories(input ?? "");
+            },
             prefix: Padding(
               padding: EdgeInsets.all(12.sp),
               child: Image.asset(Resources.search, height: 15.sp, width: 15.sp, fit: BoxFit.fill,),
             ),
-          suffix: Padding(
-              padding: EdgeInsets.all(12.sp),
-              child: Image.asset(Resources.filter, height: 15.sp, width: 15.sp, fit: BoxFit.fill,),
-            ),
+            // suffix: Padding(
+            //   padding: EdgeInsets.all(12.sp),
+            //   child: Image.asset(Resources.filter, height: 15.sp, width: 15.sp, fit: BoxFit.fill,),
+            // ),
         ),
         toolbarHeight: 80.sp,
         shape: const OutlineInputBorder(
@@ -95,7 +110,7 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      backgroundColor: AppColors.kSearchColor,
+      backgroundColor: AppColors.kNewBackColor,
       body: Container(
         padding: EdgeInsets.all(10.sp),
         width: MediaQuery.of(context).size.width,
@@ -276,222 +291,236 @@ class _HomePageState extends State<HomePage> {
              */
 
               BlocBuilder<GenericCubit<List<Category>>, GenericCubitState<List<Category>>>(
-                  bloc: adminHomeViewModel.allCategories,
-                  builder:  (context, state) {
-                    List<Category> shops =  state.data;
-                    return state is GenericLoadingState ?
-                    const SizedBox():
-                    Column(
-                      children: [
-                        InkWell(
-                          onTap:(){
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context){
-                                  return ShowAllCategory(cats: state.data, adminHomeViewModel: adminHomeViewModel, coffeeViewModel: coffeeViewModel,);
-                                })
-                            );
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Top Categories", style: AppStyles.kTextStyleHeader20,),
-                              Row(
-                                children: [
-                                  Text("View All", style: AppStyles.kTextStyleHeader16.copyWith(
-                                      color: AppColors.kFogColor
-                                  ),),
-                                  Icon(Icons.arrow_right_rounded, size: 25.sp,)
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        AppSize.h10.ph,
-                        Container(
-                          height: 130.sp,
-                          child: ListView.separated(scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index){
-                                 return InkWell(
-                                  onTap: (){
-                                    Navigator.push(context,
-                                        MaterialPageRoute(builder: (context){
-                                          return ShowAllMenusBasedonCategory(category: shops[index], coffeeViewModel: coffeeViewModel,);
-                                        })
-                                    );
-                                  },
-                                  child: Card(
-                                    elevation: 5,
-                                    shape: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(70),
-                                      borderSide: BorderSide.none
-                                    ),
-                                    color: AppColors.kWhiteColor,
-                                    child: Container(
-                                      width: 80.sp,
-                                      padding: EdgeInsets.all(5.0.sp),
-                                      child: Column(
-                                        children: [
-                                          AppSize.h5.ph,
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(70),
-                                            child: Image.network(
-                                              "https://firebasestorage.googleapis.com/v0/b/coffe-80f60.appspot.com/o/unsplash_L-sm1B4L1Ns.png?alt=media&token=1905fffb-a2ac-4f14-89a9-f354c2f9e4fc",
-                                              height: 60.sp,
-                                              width: 40.sp,
-                                              fit: index == 0 ? BoxFit.fitHeight : BoxFit.cover,
-                                            ),
-                                          ),
-                                          AppSize.h10.ph,
-                                          Text( shops[index].name ?? "",
-                                            maxLines: 2,
-                                            textAlign: TextAlign.center,
-                                            style: AppStyles.kTextStyle10.copyWith(
-                                            color: AppColors.kBlackCColor
-                                          ),),
-                                          AppSize.h5.ph,
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                  bloc: adminHomeViewModel.searchCategories,
+                  builder:  (context, searchState) {
+                    return searchState is GenericLoadingState ?
+                    const Loading() :
+                    BlocBuilder<GenericCubit<List<Category>>, GenericCubitState<List<Category>>>(
+                      bloc: adminHomeViewModel.allCategories,
+                      builder:  (context, state) {
+                        List<Category> shops = searchState.data.isEmpty ? state.data : searchState.data;
+                        return state is GenericLoadingState ?
+                        const SizedBox():
+                        Column(
+                          children: [
+                            InkWell(
+                              onTap:(){
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context){
+                                      return ShowAllCategory(cats: state.data, adminHomeViewModel: adminHomeViewModel, coffeeViewModel: coffeeViewModel,);
+                                    })
                                 );
                               },
-                              separatorBuilder: (context, index){
-                                return AppSize.h10.pw;
-                              },
-                              itemCount: shops.length
-                          ),
-                        ),
-                      ],
-                    );
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Top Categories", style: AppStyles.kTextStyleHeader20,),
+                                  Row(
+                                    children: [
+                                      Text("View All", style: AppStyles.kTextStyleHeader16.copyWith(
+                                          color: AppColors.kFogColor
+                                      ),),
+                                      Icon(Icons.arrow_right_rounded, size: 25.sp,)
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            AppSize.h10.ph,
+                            Container(
+                              height: 130.sp,
+                              child: ListView.separated(scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index){
+                                     return InkWell(
+                                      onTap: (){
+                                        Navigator.push(context,
+                                            MaterialPageRoute(builder: (context){
+                                              return ShowAllMenusBasedonCategory(category: shops[index], coffeeViewModel: coffeeViewModel,);
+                                            })
+                                        );
+                                      },
+                                      child: Card(
+                                        elevation: 5,
+                                        shape: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(70),
+                                          borderSide: BorderSide.none
+                                        ),
+                                        color: AppColors.kWhiteColor,
+                                        child: Container(
+                                          width: 80.sp,
+                                          padding: EdgeInsets.all(5.0.sp),
+                                          child: Column(
+                                            children: [
+                                              AppSize.h5.ph,
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(70),
+                                                child: Image.network(
+                                                  shops[index].image ?? "https://firebasestorage.googleapis.com/v0/b/coffe-80f60.appspot.com/o/unsplash_L-sm1B4L1Ns.png?alt=media&token=1905fffb-a2ac-4f14-89a9-f354c2f9e4fc",
+                                                  height: 60.sp,
+                                                  width: 40.sp,
+                                                  fit: index == 0 ? BoxFit.fitHeight : BoxFit.cover,
+                                                ),
+                                              ),
+                                              AppSize.h10.ph,
+                                              Text( shops[index].name ?? "",
+                                                maxLines: 2,
+                                                textAlign: TextAlign.center,
+                                                style: AppStyles.kTextStyle10.copyWith(
+                                                color: AppColors.kBlackCColor
+                                              ),),
+                                              AppSize.h5.ph,
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  separatorBuilder: (context, index){
+                                    return AppSize.h10.pw;
+                                  },
+                                  itemCount: shops.length
+                              ),
+                            ),
+                          ],
+                        );
+                    }
+                  );
                 }
               ),
               AppSize.h20.ph,
               BlocBuilder<GenericCubit<List<CoffeeShope>>, GenericCubitState<List<CoffeeShope>>>(
-                  bloc: homeViewModel.allCoffeeShopes,
-                  builder:  (context, state) {
-                    List<CoffeeShope> shops =  state.data;
-                    // shops.add(CoffeeShope(
-                    //     id: "0",
-                    //     name: "All Coffees",
-                    //     logo: "https://firebasestorage.googleapis.com/v0/b/coffe-80f60.appspot.com/o/all-inclusive.png?alt=media&token=539c0afc-2464-4d96-913e-807e69848ece"
-                    // ));
-                    // state.data.forEach((e){
-                    //   shops.add(e);
-                    // });
-                    return state is GenericLoadingState ?
-                    const SizedBox():
-                    Column(
-                      children: [
-                        InkWell(
-                          onTap: (){
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context){
-                                  return ShowAllCoffees(coffees: shops, coffeeViewModel: coffeeViewModel,);
-                                })
-                            );
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Featured Coffee Shops", style: AppStyles.kTextStyleHeader20,),
-                              Row(
+                  bloc: homeViewModel.searchedCoffeeShopes,
+                  builder:  (context, searchState) {
+                    return searchState is GenericLoadingState ?
+                    const Loading()
+                        : BlocBuilder<GenericCubit<List<CoffeeShope>>, GenericCubitState<List<CoffeeShope>>>(
+                      bloc: homeViewModel.allCoffeeShopes,
+                      builder:  (context, state) {
+                        List<CoffeeShope> shops = searchState.data.isEmpty ? state.data : searchState.data;
+                        // shops.add(CoffeeShope(
+                        //     id: "0",
+                        //     name: "All Coffees",
+                        //     logo: "https://firebasestorage.googleapis.com/v0/b/coffe-80f60.appspot.com/o/all-inclusive.png?alt=media&token=539c0afc-2464-4d96-913e-807e69848ece"
+                        // ));
+                        // state.data.forEach((e){
+                        //   shops.add(e);
+                        // });
+                        return state is GenericLoadingState ?
+                        const SizedBox():
+                        Column(
+                          children: [
+                            InkWell(
+                              onTap: (){
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context){
+                                      return ShowAllCoffees(coffees: shops, coffeeViewModel: coffeeViewModel,);
+                                    })
+                                );
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text("View All", style: AppStyles.kTextStyleHeader16.copyWith(
-                                      color: AppColors.kFogColor
-                                  ),),
-                                  Icon(Icons.arrow_right_rounded, size: 25.sp,)
+                                  Text("Featured Coffee Shops", style: AppStyles.kTextStyleHeader20,),
+                                  Row(
+                                    children: [
+                                      Text("View All", style: AppStyles.kTextStyleHeader16.copyWith(
+                                          color: AppColors.kFogColor
+                                      ),),
+                                      Icon(Icons.arrow_right_rounded, size: 25.sp,)
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                        ListView.separated(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index){
-                              double ran = (1 + random.nextInt(20)).toDouble();
-                              double star = (1 + random.nextInt(5)).toDouble();
-                              return InkWell(
-                                onTap: (){
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (context){
-                                        return ShowAllMenus(coffeeShope: shops[index], coffeeViewModel: coffeeViewModel,);
-                                      })
-                                  );
-                                  // if(shops[index] == "0"){
-                                  //   coffeeViewModel.allMenus.onUpdateData([]);
-                                  //   coffeeViewModel.getAllMenus();
-                                  // }else{
-                                  //   coffeeViewModel.menus.onUpdateData([]);
-                                  //   coffeeViewModel.getAllMenusByCoffeeShopID(shops[index].id ?? "");
-                                  // }
-                                  // setState(() {
-                                  //   _index = index;
-                                  // });
-                                },
-                                child: Card(
-                                  color: AppColors.kWhiteColor,
-                                  child: Container(
-                                    padding: EdgeInsets.all(10.0.sp),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(20),
-                                          child: Image.network(
-                                            shops[index].logo ?? "",
-                                            height: 65.sp,
-                                            width: 65.sp,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        AppSize.h10.pw,
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(shops[index].name ?? "",
-                                                maxLines: 2,
-                                                style: AppStyles.kTextStyleHeader18.copyWith(
-                                                    color: AppColors.kBlackCColor,
-                                                  fontWeight: FontWeight.bold
-                                                ),),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
+                            ),
+                            ListView.separated(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index){
+                                  double ran = (1 + random.nextInt(20)).toDouble();
+                                  double star = (1 + random.nextInt(5)).toDouble();
+                                  return InkWell(
+                                    onTap: (){
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (context){
+                                            return ShowAllMenus(coffeeShope: shops[index], coffeeViewModel: coffeeViewModel,);
+                                          })
+                                      );
+                                      // if(shops[index] == "0"){
+                                      //   coffeeViewModel.allMenus.onUpdateData([]);
+                                      //   coffeeViewModel.getAllMenus();
+                                      // }else{
+                                      //   coffeeViewModel.menus.onUpdateData([]);
+                                      //   coffeeViewModel.getAllMenusByCoffeeShopID(shops[index].id ?? "");
+                                      // }
+                                      // setState(() {
+                                      //   _index = index;
+                                      // });
+                                    },
+                                    child: Card(
+                                      color: AppColors.kWhiteColor,
+                                      child: Container(
+                                        padding: EdgeInsets.all(10.0.sp),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(20),
+                                              child: Image.network(
+                                                shops[index].logo ?? "",
+                                                height: 65.sp,
+                                                width: 65.sp,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            AppSize.h10.pw,
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  Text(star.toString(),
+                                                  Text(shops[index].name ?? "",
                                                     maxLines: 2,
-                                                    style: AppStyles.kTextStyleHeader12.copyWith(
-                                                        color: AppColors.kBlackCColor
+                                                    style: AppStyles.kTextStyleHeader18.copyWith(
+                                                        color: AppColors.kBlackCColor,
+                                                      fontWeight: FontWeight.bold
                                                     ),),
-                                                  AppSize.h5.pw,
-                                                  Image.asset(Resources.rate_calc, height: 20.sp, color: AppColors.kBackgroundColor,),
-                                                  AppSize.h20.pw,
-                                                  Text(ran.toString() + " Km",
-                                                    maxLines: 2,
-                                                    style: AppStyles.kTextStyleHeader12.copyWith(
-                                                        color: AppColors.kBlackCColor
-                                                    ),),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    children: [
+                                                      Text(star.toString(),
+                                                        maxLines: 2,
+                                                        style: AppStyles.kTextStyleHeader12.copyWith(
+                                                            color: AppColors.kBlackCColor
+                                                        ),),
+                                                      AppSize.h5.pw,
+                                                      Image.asset(Resources.rate_calc, height: 20.sp, color: AppColors.kBackgroundColor,),
+                                                      AppSize.h20.pw,
+                                                      Text(shops[index].distance.toString() + " Km",
+                                                        maxLines: 2,
+                                                        style: AppStyles.kTextStyleHeader12.copyWith(
+                                                            color: AppColors.kBlackCColor
+                                                        ),),
+                                                    ],
+                                                  )
                                                 ],
-                                              )
-                                            ],
-                                          ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              );
-                            },
-                            separatorBuilder: (context, index){
-                              return AppSize.h10.pw;
-                            },
-                            itemCount: shops.length
-                        ),
-                      ],
-                    );
-                  }
+                                  );
+                                },
+                                separatorBuilder: (context, index){
+                                  return AppSize.h10.pw;
+                                },
+                                itemCount: shops.length
+                            ),
+                          ],
+                        );
+                      }
+                  );
+                }
               ),
               AppSize.h20.ph,
 

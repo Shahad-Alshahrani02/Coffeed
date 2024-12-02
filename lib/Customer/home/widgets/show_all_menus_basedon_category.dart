@@ -38,7 +38,7 @@ class _ShowAllMenusBasedonCategoryState extends State<ShowAllMenusBasedonCategor
   final random =  Random();
   @override
   void initState() {
-    widget.coffeeViewModel.getAllMenusByCategoryID(widget.category.id ?? "");
+    widget.coffeeViewModel.getAllMenusByCategoryName(widget.category.name ?? "");
     homeViewModel.getAllCoffeeShopsSortingBaseLocation();
     super.initState();
   }
@@ -47,10 +47,10 @@ class _ShowAllMenusBasedonCategoryState extends State<ShowAllMenusBasedonCategor
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Padding(
-          padding: EdgeInsets.all(10.sp),
-          child: Image.asset(Resources.notify),
-        ),
+        // leading: Padding(
+        //   padding: EdgeInsets.all(10.sp),
+        //   child: Image.asset(Resources.notify),
+        // ),
         title: CustomField(
           controller: widget.coffeeViewModel.search,
           fillColor: AppColors.kSearchColor,
@@ -60,6 +60,7 @@ class _ShowAllMenusBasedonCategoryState extends State<ShowAllMenusBasedonCategor
           ),
         ),
         toolbarHeight: 80.sp,
+        leadingWidth: 30.sp,
         shape: const OutlineInputBorder(
             borderSide: BorderSide.none,
             borderRadius: BorderRadius.only(
@@ -68,7 +69,7 @@ class _ShowAllMenusBasedonCategoryState extends State<ShowAllMenusBasedonCategor
             )
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        // automaticallyImplyLeading: false,
         backgroundColor: AppColors.kWhiteColor,
         actions: [
           Padding(
@@ -94,7 +95,7 @@ class _ShowAllMenusBasedonCategoryState extends State<ShowAllMenusBasedonCategor
                  ),
                  child: Padding(
                    padding: EdgeInsets.symmetric(vertical: 5.sp, horizontal: 40.sp),
-                   child: Text(widget.category.name??"", style: AppStyles.kTextStyleHeader26,),
+                 child: Text(widget.category.name??"", style: AppStyles.kTextStyleHeader26,),
                  ),
                ),
              ],
@@ -104,7 +105,7 @@ class _ShowAllMenusBasedonCategoryState extends State<ShowAllMenusBasedonCategor
             Text("10 most popular", style: AppStyles.kTextStyle22,),
 
             BlocBuilder<GenericCubit<List<CoffeeShope>>, GenericCubitState<List<CoffeeShope>>>(
-                bloc: homeViewModel.allCoffeeShopes,
+                bloc: homeViewModel.allCoffeeShopesBaseOnCategory,
                 builder:  (context, state) {
                   var menus = state.data;
                   return state is GenericLoadingState ?
@@ -185,7 +186,7 @@ class _ShowAllMenusBasedonCategoryState extends State<ShowAllMenusBasedonCategor
             AppSize.h20.ph,
             Text("Top rated", style: AppStyles.kTextStyle22,),
             BlocBuilder<GenericCubit<List<Menu>>, GenericCubitState<List<Menu>>>(
-                bloc: widget.coffeeViewModel.menus,
+                bloc: widget.coffeeViewModel.menusBaseOnCategoy,
                 builder:  (context, state) {
                   var menus = state.data;
                   return state is GenericLoadingState ?
@@ -238,13 +239,22 @@ class _ShowAllMenusBasedonCategoryState extends State<ShowAllMenusBasedonCategor
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
-                                            Text(star.toString(),
-                                              maxLines: 2,
-                                              style: AppStyles.kTextStyleHeader12.copyWith(
-                                                  color: AppColors.kBlackCColor
-                                              ),),
-                                            AppSize.h5.pw,
-                                            Image.asset(Resources.rate_calc, height: 20.sp, color: AppColors.kBackgroundColor,),
+                                            InkWell(
+                                              onTap: (){
+                                                Navigator.push(context, MaterialPageRoute(builder: (context) => ShowRateDetails(menu:  menus[index],)));
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Text(star.toString(),
+                                                    maxLines: 2,
+                                                    style: AppStyles.kTextStyleHeader12.copyWith(
+                                                        color: AppColors.kBlackCColor
+                                                    ),),
+                                                  AppSize.h5.pw,
+                                                  Image.asset(Resources.rate_calc, height: 20.sp, color: AppColors.kBackgroundColor,),
+                                                ],
+                                              ),
+                                            ),
                                             AppSize.h20.pw,
                                             Text(ran.toString() + " Km",
                                               maxLines: 2,

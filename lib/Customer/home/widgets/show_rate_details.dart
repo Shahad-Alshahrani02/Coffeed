@@ -138,8 +138,8 @@ import 'package:template/shared/util/ui.dart';
                           ): const SizedBox(),
                         ],
                       ),
-                      AppSize.h10.ph,
-                      Text(widget.menu.description ?? "", style: AppStyles.kTextStyle20),
+                      // AppSize.h10.ph,
+                      // Text(widget.menu.description ?? "", style: AppStyles.kTextStyle20),
                       AppSize.h5.ph,
                       Row(
                         children: [

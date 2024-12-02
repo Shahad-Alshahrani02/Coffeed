@@ -78,6 +78,8 @@ class _MenuPageState extends State<MenuPage> {
                             AppSize.h10.ph,
                             Row(
                               children: [
+                                PrefManager.currentUser?.type == 3?
+                                const Expanded(child: SizedBox()):
                                 Expanded(child: Text(menu.description ?? "",
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,

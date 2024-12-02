@@ -88,7 +88,7 @@ class ShowAllCategory extends StatelessWidget {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(70),
                               child: Image.network(
-                                "https://firebasestorage.googleapis.com/v0/b/coffe-80f60.appspot.com/o/unsplash_L-sm1B4L1Ns.png?alt=media&token=1905fffb-a2ac-4f14-89a9-f354c2f9e4fc",
+                                cats[index].image ?? "https://firebasestorage.googleapis.com/v0/b/coffe-80f60.appspot.com/o/unsplash_L-sm1B4L1Ns.png?alt=media&token=1905fffb-a2ac-4f14-89a9-f354c2f9e4fc",
                                 height: 60.sp,
                                 width: 40.sp,
                                 fit:  BoxFit.cover,

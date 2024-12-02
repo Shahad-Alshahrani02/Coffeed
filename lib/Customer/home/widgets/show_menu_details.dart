@@ -34,9 +34,29 @@ class ShowMenuDetails extends StatefulWidget {
 
 class _ShowMenuDetailsState extends State<ShowMenuDetails> {
   int size = 1;
+  double smallPrice = 0.0;
+  double meduimPrice = 0.0;
+  double largePrice = 0.0;
+
+  @override
+  void initState() {
+    if(widget.menu.price! > 4) {
+      smallPrice = (widget.menu.price! - widget.menu.poromotion!) - 3;
+    }
+
+    meduimPrice = (widget.menu.price! -  widget.menu.poromotion! );
+
+    largePrice = (widget.menu.price! -  widget.menu.poromotion! ) + 3;
+
+    widget.menu.newPrice = meduimPrice;
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    print("widget.menu.poromotion");
+    print(widget.menu.poromotion);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.kBackgroundColor,
@@ -119,7 +139,15 @@ class _ShowMenuDetailsState extends State<ShowMenuDetails> {
                     onTap: (){
                       setState(() {
                         size = 0;
+                          widget.menu.newPrice = smallPrice;
+                          widget.menu.price = smallPrice + widget.menu.poromotion!;
+
+                        //   if(widget.menu.price! > 4) {
+                        //   widget.menu.newPrice = (widget.menu.price! + widget.menu.poromotion!) - 3;
+                        //   widget.menu.price = (widget.menu.price!) - 3;
+                        // }
                       });
+                      widget.menu.size = "Small";
                     },
                     child: Column(
                       children: [
@@ -133,7 +161,13 @@ class _ShowMenuDetailsState extends State<ShowMenuDetails> {
                     onTap: (){
                       setState(() {
                         size = 1;
+                        widget.menu.newPrice = meduimPrice;
+                        widget.menu.price = meduimPrice + widget.menu.poromotion!;
+
+                        // widget.menu.newPrice = (widget.menu.price! +  widget.menu.poromotion! );
+                        // widget.menu.price = (widget.menu.price!);
                       });
+                      widget.menu.size = "Medium";
                     },
                     child: Column(
                       children: [
@@ -147,7 +181,13 @@ class _ShowMenuDetailsState extends State<ShowMenuDetails> {
                     onTap: (){
                       setState(() {
                         size = 2;
+                        widget.menu.newPrice = largePrice;
+                        widget.menu.price = largePrice + widget.menu.poromotion!;
+
+                        // widget.menu.newPrice = (widget.menu.price! +  widget.menu.poromotion! ) + 3;
+                        // widget.menu.price = (widget.menu.price!) + 3;
                       });
+                      widget.menu.size = "Large";
                     },
                     child: Column(
                       children: [
@@ -208,7 +248,7 @@ class _ShowMenuDetailsState extends State<ShowMenuDetails> {
                         ): Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(widget.menu.newPrice.toString() ?? "", style: AppStyles.kTextStyle14.copyWith(
+                            Text(widget.menu.price.toString() ?? "", style: AppStyles.kTextStyle14.copyWith(
                                 decoration: TextDecoration.lineThrough
                             ),),
                             AppSize.h5.pw,
