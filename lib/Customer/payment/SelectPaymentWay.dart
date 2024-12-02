@@ -13,6 +13,7 @@ import 'package:template/shared/constants/colors.dart';
 import 'package:template/shared/constants/styles.dart';
 import 'package:template/shared/extentions/padding_extentions.dart';
 import 'package:template/shared/generic_cubit/generic_cubit.dart';
+import 'package:template/shared/prefs/pref_manager.dart';
 import 'package:template/shared/resources.dart';
 import 'package:template/shared/ui/componants/loading_widget.dart';
 import 'package:template/shared/util/ui.dart';
@@ -58,21 +59,21 @@ class _SelectPaymentWayState extends State<SelectPaymentWay> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text("Order payment", style: AppStyles.kTextStyle20,),
-                          InkWell(
-                              onTap: (){
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(AppSize.r30),
-                                      topRight: Radius.circular(AppSize.r30),
-                                    ),
-                                  ),
-                                  builder: (_) => const VisaCardPaymentPage(),
-                                );
-                              },
-                              child: Text("+ Add New Card", style: AppStyles.kTextStyle14,)),
+                          // InkWell(
+                          //     onTap: (){
+                          //       showModalBottomSheet(
+                          //         context: context,
+                          //         isScrollControlled: true,
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.only(
+                          //             topLeft: Radius.circular(AppSize.r30),
+                          //             topRight: Radius.circular(AppSize.r30),
+                          //           ),
+                          //         ),
+                          //         builder: (_) => const VisaCardPaymentPage(),
+                          //       );
+                          //     },
+                          //     child: Text("+ Add New Card", style: AppStyles.kTextStyle14,)),
                         ],
                       ),
                       AppSize.h40.ph,
@@ -93,7 +94,8 @@ class _SelectPaymentWayState extends State<SelectPaymentWay> {
                                 glassmorphismConfig: Glassmorphism.defaultConfig(),
                                 cardNumber: "1234 4321 5437 9543",
                                 expiryDate: "23/06",
-                                cardHolderName: Provider.of<CartViewModel>(context, listen: false).items.first.product?.coffeShopData?.name ?? "",
+                                cardHolderName: PrefManager.currentUser?.name ?? "",
+                                // cardHolderName: Provider.of<CartViewModel>(context, listen: false).items.first.product?.coffeShopData?.name ?? "",
                                 cvvCode: "176",
                                 bankName: 'Credit Card',
                                 frontCardBorder:Border.all(color: AppColors.kMainColor),
@@ -151,21 +153,36 @@ class _SelectPaymentWayState extends State<SelectPaymentWay> {
                         Text(Provider.of<CartViewModel>(context, listen: false).items.first.product?.coffeShopData?.location ?? ""),
                       ],
                     ),
-                    leading: FadeInImage.assetNetwork(
-                      placeholder:  Resources.logo, // Local image shown while loading
-                      image: Provider.of<CartViewModel>(context, listen: false).items.first.product?.coffeShopData?.logo ?? "",
+                    leading: Container(
                       height: 80.0,
                       width: 80.0,
-                      fit: BoxFit.cover,
-                      imageErrorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                        return Image.asset(
-                          Resources.logo, // Fallback image if network image fails
-                          height: 80.0,
-                          width: 80.0,
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    )
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: AppColors.kSearchColor
+                      ),
+                      padding: EdgeInsets.all(10.sp),
+                      child: Image.asset(
+                        Resources.cart, // Fallback image if network image fails
+                        height: 40.0,
+                        width: 40.0,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    // leading: FadeInImage.assetNetwork(
+                    //   placeholder:  Resources.logo, // Local image shown while loading
+                    //   image: Provider.of<CartViewModel>(context, listen: false).items.first.product?.coffeShopData?.logo ?? "",
+                    //   height: 80.0,
+                    //   width: 80.0,
+                    //   fit: BoxFit.cover,
+                    //   imageErrorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                    //     return Image.asset(
+                    //       Resources.logo, // Fallback image if network image fails
+                    //       height: 80.0,
+                    //       width: 80.0,
+                    //       fit: BoxFit.cover,
+                    //     );
+                    //   },
+                    // )
                   ),
 
                   AppSize.h20.ph,
@@ -289,13 +306,22 @@ class _SelectPaymentWayState extends State<SelectPaymentWay> {
                           child: Container(
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: AppColors.kRateColor
+                                color: AppColors.kShopColor
                             ),
                             height: 50.sp,
                             width: 150.sp,
                             child: Padding(
                               padding:  EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.sp),
-                              child: Image.asset(Resources.cart, height: 25.sp, color: AppColors.kWhiteColor,),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(Resources.add_order_page, height: 15.sp, color: AppColors.kWhiteColor,),
+                                  AppSize.h5.pw,
+                                  Text("Pay Now", style: AppStyles.kTextStyle14.copyWith(
+                                    color: AppColors.kWhiteColor
+                                  ),)
+                                ],
+                              ),
                             ),
                           ),
                         );
